@@ -4,14 +4,17 @@ import time
 import csv
 import logging
 
+h5InPath = '/data/gengshan/pose/hg_img_all.h5'  # all.h5
+svOutPath = '/data/gengshan/pose_s2vt/splits/'
+
 """ Transfer data from .h5/json to csv/tsv files """
 def prepareData(split):
     """ prepare h5 file reader """
-    h5InFile = h5py.File('/data/gengshan/pose/all.h5', 'r')
+    h5InFile = h5py.File(h5InPath, 'r')  
     
     """ prepare file writer """
-    csvFile = open('/data/gengshan/pose_s2vt/splits/' + 'dataCsv_' + split['name'] + '.txt', 'a')
-    tsvFile = open('/data/gengshan/pose_s2vt/splits/' + 'dataTsv_' + split['name'] + '.txt', 'a')
+    csvFile = open(svOutPath + 'dataCsv_' + split['name'] + '.txt', 'a')
+    tsvFile = open(svOutPath + 'dataTsv_' + split['name'] + '.txt', 'a')
     csvWriter =csv.writer(csvFile, delimiter = ',', lineterminator='\n')
     tsvWriter =csv.writer(tsvFile, delimiter = '\t', lineterminator='\n')
      
