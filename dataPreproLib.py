@@ -34,9 +34,10 @@ def prepareData(split):
         frameFeatArray = {}
         for itt,frameFeat in enumerate(h5InFile[clipTitle].keys()):
             frameFeatArray[frameFeat] = h5InFile[clipTitle][frameFeat][:].flatten()  # get the feat and flatten it 
+        frameFeatArray = sorted(frameFeatArray.items())  # sort by key
 
         """ Write csv file and tsv file """ 
-        for key, value in frameFeatArray.items():
+        for (key, value) in frameFeatArray:
             csvWriter.writerow([key] + value.tolist())
 
         tsvWriter.writerow([clipTitle] + [tempCap])
