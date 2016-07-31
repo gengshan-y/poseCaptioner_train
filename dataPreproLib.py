@@ -4,7 +4,41 @@ import time
 import csv
 import logging
 
-h5InPath = '/data/gengshan/pose/hg_img_all.h5'  # all.h5
+
+''' Stores the split result in format {'train':, 'val':, 'test':, 'info':}
+    info contains split ratio and clip number '''
+def randSplit(splitRat, inPath, outPath, clipRange):
+    import numpy
+    import json
+    from random import shuffle
+
+    """ get all lines from file """
+    with open(inPath) as f:
+        clipList = f.readlines()
+    clipList = clipList[clipRange[0]:clipRange[1]]
+
+    clipNum = len(clipList)
+    logging.info(str(clipNum) + ' titles loaded')
+
+    """ create a random ordering of the lines """
+    idxList = range(0, clipNum)
+    shuffle(idxList)
+
+    splitCumRat = [splitRat[0], 1 - splitRat[2]]
+    splitRange = [int(it) for it in numpy.multiply(clipNum, splitCumRat)]
+
+    """ Set splits """
+    out = {}
+    out['train'] = [clipList[it][:-1] for it in idxList[: splitRange[0]]]
+    out['val'] = [clipList[it][:-1] for it in idxList[splitRange[0]: splitRange[1]]]
+    out['test'] = [clipList[it][:-1] for it in idxList[splitRange[1]:]]
+    out['info'] = splitRat + [clipNum]
+
+    ''' dump results '''
+    json.dump(out, open(outPath, 'w'))
+
+
+h5InPath = '/data/gengshan/pose/all.h5'  # hg_img_all.h5  # all.h5
 svOutPath = '/data/gengshan/pose_s2vt/splits/'
 
 """ Transfer data from .h5/json to csv/tsv files """
@@ -13,10 +47,14 @@ def prepareData(split):
     h5InFile = h5py.File(h5InPath, 'r')  
     
     """ prepare file writer """
-    csvFile = open(svOutPath + 'dataCsv_' + split['name'] + '.txt', 'a')
-    tsvFile = open(svOutPath + 'dataTsv_' + split['name'] + '.txt', 'a')
+    csvOutPath = svOutPath + 'dataCsv_' + split['name'] + '.txt'
+    tsvOutPath = svOutPath + 'dataTsv_' + split['name'] + '.txt'
+    csvFile = open(csvOutPath, 'a')
+    tsvFile = open(tsvOutPath, 'a')
     csvWriter =csv.writer(csvFile, delimiter = ',', lineterminator='\n')
     tsvWriter =csv.writer(tsvFile, delimiter = '\t', lineterminator='\n')
+    logging.info(csvOutPath + ' opened for writing')
+    logging.info(tsvOutPath + ' opened for writing')
      
     beg = time.time()
     for it, clipTitle in enumerate(split['titleList']):
