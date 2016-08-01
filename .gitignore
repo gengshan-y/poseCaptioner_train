@@ -5,3 +5,5 @@ log/
 trash/
 .ipynb_checkpoints/
 *.pyc
+err
+out

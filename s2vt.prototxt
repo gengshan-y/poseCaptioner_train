@@ -18,8 +18,8 @@ layer {
   top: "frame_fc7"
   include { phase: TRAIN }
   hdf5_data_param {
-    source: "/data/gengshan/pose_s2vt/hdf5/buffer_32_s2vt_160/HAHAHAHA_batches/hdf5_chunk_list.txt"
-    batch_size: 80
+    source: "/data/gengshan/pose_s2vt/hdf5/buffer_32_s2vt_100/train_batches/hdf5_chunk_list.txt"
+    batch_size: 100
   }
 }
 layer {
@@ -35,8 +35,8 @@ layer {
     stage: "test-on-train"
   }
   hdf5_data_param {
-    source: "/data/gengshan/pose_s2vt/hdf5/buffer_32_s2vt_160/HAHAHAHA_batches/hdf5_chunk_list.txt"
-    batch_size: 80
+    source: "/data/gengshan/pose_s2vt/hdf5/buffer_32_s2vt_100/train_batches/hdf5_chunk_list.txt"
+    batch_size: 100
   }
 }
 layer {
@@ -52,8 +52,8 @@ layer {
     stage: "test-on-val"
   }
   hdf5_data_param {
-    source: "/data/gengshan/pose_s2vt/hdf5/buffer_32_s2vt_160/HAHAHAHA_batches/hdf5_chunk_list.txt"
-    batch_size: 80
+    source: "/data/gengshan/pose_s2vt/hdf5/buffer_32_s2vt_100/val_batches/hdf5_chunk_list.txt"
+    batch_size: 100
   }
 }
 layer {
@@ -63,7 +63,7 @@ layer {
   top: "stage_indicator_3axis"
   reshape_param {
     shape {
-      dim: 80
+      dim: 100
       dim: 32
       dim: 1
     }

@@ -32,7 +32,7 @@ class fc7FrameSequenceGenerator(SequenceGenerator):
     
     def next_line(self):
         num_lines = float(len(self.lines))
-        if self.line_index == 1 or self.line_index == num_lines or self.line_index % 10 == 0:
+        if self.line_index == 1 or self.line_index == num_lines or self.line_index % 100 == 0:
             print 'Processed %d/%d (%f%%) lines' % (self.line_index, num_lines,
                                               100 * self.line_index / num_lines)
         self.line_index += 1
@@ -68,8 +68,8 @@ class fc7FrameSequenceGenerator(SequenceGenerator):
         if pad < 0:
             # print '{0} #frames: {1} #words: {2}'.format(vidid, num_frames, num_words)
             # truncate frames
-            # if (num_words + 1) > self.max_words:
-            stream = stream[:20]  # truncate words to 20
+            if (num_words + 1) > self.max_words:  
+                stream = stream[:20]  # truncate words to 20 if there are too many words
             num_frames = self.max_words - (len(stream)+1)
             truncated = True
             pad = 0
@@ -79,7 +79,7 @@ class fc7FrameSequenceGenerator(SequenceGenerator):
         # reverse the string
         if self.reverse:
             stream.reverse()
-            
+        
         if pad > 0: self.num_pads += 1
         
         self.num_outs += 1   # {frames}{x}{words}
@@ -102,8 +102,10 @@ class fc7FrameSequenceGenerator(SequenceGenerator):
         # pad last frame for the length of the sentence
         num_img_pads = len(out['input_sentence']) - num_frames
         zero_padding = np.zeros(len(feat_fc7)).reshape(1, len(feat_fc7))
+
         for padframe in range(num_img_pads):
             out['frame_fc7'].append(zero_padding)
+            
         assert len(out['frame_fc7'])==len(out['input_sentence'])
         self.next_line()
 

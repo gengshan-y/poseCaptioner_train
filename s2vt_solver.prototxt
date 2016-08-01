@@ -30,7 +30,7 @@ max_iter: 50000
 momentum: 0.9
 weight_decay: 0.0000
 snapshot: 1000
-snapshot_prefix: "./snapshots/s2vt_youtube_vgg"
+snapshot_prefix: "/data/gengshan/pose_s2vt/snapshots/s2vt_asl_pose"
 solver_mode: GPU
 random_seed: 1701
 average_loss: 100
