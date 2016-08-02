@@ -9,7 +9,6 @@ from hdf5_npstreamsequence_generator import SequenceGenerator
 
 # UNK_IDENTIFIER is the word used to identify unknown words
 UNK_IDENTIFIER = '<en_unk>'
-MAX_WORDS = 160 # 80  # max length of whole sequence
 FEAT_DIM= 32  # 32 dim pose features
 BUFFER_SIZE = 32 # number of streams for a batch of data
 
@@ -145,8 +144,12 @@ class fc7FrameSequenceGenerator(SequenceGenerator):
             # self.init_vocabulary_from_data(vocab_filename)
 
     def __init__(self, filenames, batch_num_streams=1, vocab_filename=None,
-               max_words=MAX_WORDS, align=True, shuffle=True, pad=True,
-               truncate=True, reverse=False):
+               max_words=80, align=True, shuffle=True, pad=True,
+               truncate=True, reverse=False):  # reverse - reverse the words, 
+                                               # shuffle lines if true
+                                               # must truncate
+                                               # pad word+frame with 0 if pad
+                                               # align means to pad the last buffer
         self.max_words = max_words
         self.reverse = reverse
         self.array_type_inputs = {}  # stream inputs that are arrays
@@ -213,13 +216,13 @@ class fc7FrameSequenceGenerator(SequenceGenerator):
         # so each timestep of each batch is useful and we can align the images
         if align:
             num_pairs = len(self.lines)
-        remainder = num_pairs % BUFFER_SIZE
-        if remainder > 0:
-            num_needed = BUFFER_SIZE - remainder
-            for i in range(num_needed):
-                choice = random.randint(0, num_pairs - 1)
-                self.lines.append(self.lines[choice])
-        assert len(self.lines) % BUFFER_SIZE == 0
+            remainder = num_pairs % BUFFER_SIZE
+            if remainder > 0:
+                num_needed = BUFFER_SIZE - remainder
+                for i in range(num_needed):
+                    choice = random.randint(0, num_pairs - 1)
+                    self.lines.append(self.lines[choice])
+            assert len(self.lines) % BUFFER_SIZE == 0
         if shuffle:
             random.shuffle(self.lines)
         self.pad = pad

@@ -1,6 +1,7 @@
-from util import gen_stats
+from utils import gen_stats, vocab_inds_to_sentence
 import json
-title2num = json.load(open('results/data/ori_data_list.json', 'r'))
+title2num = json.load(open('/home/gengshan/public_html/data/ori_data_list.json'\
+                           , 'r'))
 
 def to_html_row(columns, header=False):
     out= '<tr>'
@@ -65,7 +66,7 @@ def to_html_output(outputs, vocab):
                 caption_string = '<strong>%s</strong>' % caption_string
             
             
-            with open('results/data/clip/' + \
+            with open('/data2/gengshan/clip/' + \
                video_id.rsplit('_', 1)[0] + '/' + video_id + '.txt', 'r') as tmpSubFile:
                 tmpSub = ''.join(tmpSubFile.readlines())
             tmpClipNum = str(title2num[video_id.rsplit('_', 1)[0]]) + '_' + video_id.rsplit('_', 1)[1]

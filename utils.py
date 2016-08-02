@@ -100,6 +100,8 @@ def predict_image_caption_beam_search(net, pad_img_feature, vocab_list, strategy
         for beam in new_beams:
             if beam[-1] == 0 or len(beam) >= max_length: beams_complete += 1
         beams, beam_probs = new_beams, new_beam_probs
+    print beams
+    
     return beams, beam_probs 
 
 def predict_image_caption(net, pad_img_feature, vocab_list, strategy={'type': 'beam'}):
@@ -177,7 +179,7 @@ def run_pred_iters(pred_net, vidids, video_gt_pairs, fsg,
             print 'Dimension of video features: {0}'.format(video_features[0].shape)
             # run lstm on all the frames of video before predicting\
 
-            encode_video_frames(pred_net, video_features)
+            encode_video_frames(pred_net, video_features)  # run all frames through net
 
             # use the last frame from the video as padding
             pad_img_feature = video_features[-1]
@@ -224,7 +226,10 @@ def all_video_gt_pairs(fsg):
         else:
             data[video_id] = [gt]
         prev_video_id = video_id
-        print 'Found %d videos with %d captions' % (len(data.keys()), len(data.values()))
+        if len(data.keys()) % 1000 == 0:
+            print 'Found %d videos with %d captions' % (len(data.keys()), len(data.values()))
+        if len(data.keys()) == 1000:
+            break
     else:
         data = OrderedDict(((key, []) for key in fsg.vid_framefeats.keys()))
     return data
