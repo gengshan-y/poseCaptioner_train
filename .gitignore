@@ -2,6 +2,7 @@ snapshots/
 results/
 tmp/
 log/
+train_log/
 trash/
 .ipynb_checkpoints/
 *.pyc
