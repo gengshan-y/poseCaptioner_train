@@ -18,7 +18,7 @@ layer {
   top: "frame_fc7"
   include { phase: TRAIN }
   hdf5_data_param {
-    source: "/data/gengshan/pose_s2vt/hdf5/buffer_32_s2vt_100/train_batches/hdf5_chunk_list.txt"
+    source: "/data/gengshan/pose_s2vt/hdf5/buffer_32_s2vt_100/train_2_batches/hdf5_chunk_list.txt"
     batch_size: 100
   }
 }
@@ -35,7 +35,7 @@ layer {
     stage: "test-on-train"
   }
   hdf5_data_param {
-    source: "/data/gengshan/pose_s2vt/hdf5/buffer_32_s2vt_100/train_batches/hdf5_chunk_list.txt"
+    source: "/data/gengshan/pose_s2vt/hdf5/buffer_32_s2vt_100/train_2_batches/hdf5_chunk_list.txt"
     batch_size: 100
   }
 }
@@ -52,7 +52,7 @@ layer {
     stage: "test-on-val"
   }
   hdf5_data_param {
-    source: "/data/gengshan/pose_s2vt/hdf5/buffer_32_s2vt_100/val_batches/hdf5_chunk_list.txt"
+    source: "/data/gengshan/pose_s2vt/hdf5/buffer_32_s2vt_100/val_2_batches/hdf5_chunk_list.txt"
     batch_size: 100
   }
 }
@@ -112,7 +112,7 @@ layer {
   }
   embed_param {
     bias_term: false
-    input_dim: 6068 #  46168 youtube_movie_vocab+1
+    input_dim: 13853 # 1656 # 6068 #  46168 youtube_movie_vocab+1
     num_output: 500
     weight_filler {
       type: "uniform"
@@ -264,7 +264,7 @@ layer {
   }
   exclude { stage: "2-layer" }
   inner_product_param {
-    num_output: 6068  # 46168 youtube_movie_vocab + 1
+    num_output: 13853 # 1656 # 6068  # 46168 youtube_movie_vocab + 1
     weight_filler {
       type: "uniform"
       min: -0.08
@@ -292,7 +292,7 @@ layer {
   }
   include { stage: "2-layer" }
   inner_product_param {
-    num_output: 6068  # 46168 youtube_movie_vocab + 1
+    num_output: 13853 # 1656 # 6068  # 46168 youtube_movie_vocab + 1
     weight_filler {
       type: "uniform"
       min: -0.08

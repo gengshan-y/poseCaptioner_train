@@ -5,12 +5,11 @@ import sys
 import random
 random.seed(3)
 import h5py
+import string
 from hdf5_npstreamsequence_generator import SequenceGenerator
 
 # UNK_IDENTIFIER is the word used to identify unknown words
 UNK_IDENTIFIER = '<en_unk>'
-FEAT_DIM= 32  # 32 dim pose features
-BUFFER_SIZE = 32 # number of streams for a batch of data
 
 class fc7FrameSequenceGenerator(SequenceGenerator):
     
@@ -41,7 +40,7 @@ class fc7FrameSequenceGenerator(SequenceGenerator):
     
     def line_to_stream(self, sentence):
         stream = []
-        for word in sentence.split():
+        for word in sentence.lower().translate(None, string.punctuation).strip().split():
             word = word.strip()
             if word in self.vocabulary:
                 stream.append(self.vocabulary[word])
@@ -120,7 +119,7 @@ class fc7FrameSequenceGenerator(SequenceGenerator):
             split_line = line.split()
             word = split_line[0]
             # print word
-            if unicode(word) == UNK_IDENTIFIER:
+            if word == UNK_IDENTIFIER:
                 continue
             else:
                 assert word not in self.vocabulary
@@ -131,20 +130,59 @@ class fc7FrameSequenceGenerator(SequenceGenerator):
         print ('Initialized vocabulary from file with %d unique words ' +
            '(from %d total words in dataset).') % \
           (num_words_vocab, num_words_dataset)
-        assert len(self.vocabulary_inverted) == num_words_vocab
+        assert len(self.vocabulary_inverted) == num_words_vocab  
+     
+    def init_vocabulary_from_data(self, vocab_filename):
+        print 'Initializing the vocabulary from full data'
+        assert len(self.lines) > 0
+        # initialize the vocabulary with the UNK word if new
+        self.vocabulary = {UNK_IDENTIFIER: 0}
+        self.vocabulary_inverted.append(UNK_IDENTIFIER)
+        # count frequency of word in data
+        self.vocab_counts[UNK_IDENTIFIER] = 0
+      
+        num_words_dataset = 0
+        for vidid, line in self.lines:
+            split_line = line.split()
+            num_words_dataset += len(split_line)
+            # as what is done in neuraltalk
+            line = line.lower().translate(None, string.punctuation).strip().split()
+            for word in line:
+                if word in self.vocabulary:
+                    self.vocab_counts[word] += 1
+                    # elif len(word) == 0:  ## when it's all symbols and stripped out
+                    # self.vocab_counts[self.vocabulary[UNK_IDENTIFIER]] += 1
+                else:
+                    self.vocabulary_inverted.append(word)
+                    self.vocabulary[word] = len(self.vocab_counts.keys())
+                    self.vocab_counts[word] = 1
 
-    
+        num_words_vocab = len(self.vocabulary.keys())
+        print ('Initialized the vocabulary from data with %d unique words ' +
+               '(from %d total words in dataset).') % (num_words_vocab, num_words_dataset)
+        assert len(self.vocab_counts.keys()) == num_words_vocab
+        assert len(self.vocabulary_inverted) == num_words_vocab
+        if self.vocab_counts[UNK_IDENTIFIER] == 0:
+            print 'Warning: the count for the UNK identifier "%s" was 0.' % UNK_IDENTIFIER    
+        self.dump_vocabulary(vocab_filename)
+        
+    def dump_vocabulary(self, vocab_filename):
+        print 'Dumping vocabulary to file: %s' % vocab_filename
+        with open(vocab_filename, 'wb') as vocab_file:
+            for word in self.vocabulary_inverted:
+                vocab_file.write('%s\n' % word)
+        print 'Done.' 
+        
     def init_vocabulary(self, vocab_filename):
         print "Initializing the vocabulary."
         if os.path.isfile(vocab_filename):
             with open(vocab_filename, 'rb') as vocab_file:
                 self.init_vocab_from_file(vocab_file)
         else:
-            print('error')
-            # self.init_vocabulary_from_data(vocab_filename)
+            self.init_vocabulary_from_data(vocab_filename)
 
     def __init__(self, filenames, batch_num_streams=1, vocab_filename=None,
-               max_words=80, align=True, shuffle=True, pad=True,
+               feat_dim = 32, max_words=80, align=True, shuffle=True, pad=True,
                truncate=True, reverse=False):  # reverse - reverse the words, 
                                                # shuffle lines if true
                                                # must truncate
@@ -154,7 +192,7 @@ class fc7FrameSequenceGenerator(SequenceGenerator):
         self.reverse = reverse
         self.array_type_inputs = {}  # stream inputs that are arrays
         
-        self.array_type_inputs['frame_fc7'] = FEAT_DIM 
+        self.array_type_inputs['frame_fc7'] = feat_dim
 
         self.lines = []
         num_empty_lines = 0
@@ -172,9 +210,8 @@ class fc7FrameSequenceGenerator(SequenceGenerator):
             for line in pool_csv:
                 id_framenum = line[0]
                 video_id = id_framenum.rsplit('_', 1)[0]
-                frameData = np.array(line[1:])
+                frameData = np.array(line[1:])[12:]  # only keep upper limb poses
 
-        
                 ''' Get hdf5 data '''
                 if video_id not in self.vid_framefeats:
                     self.vid_framefeats[video_id]=[]
@@ -205,7 +242,7 @@ class fc7FrameSequenceGenerator(SequenceGenerator):
         self.frame_list = []
         self.vocabulary = {}
         self.vocabulary_inverted = []
-        self.vocab_counts = []
+        self.vocab_counts = {}
         
         """ initialize vocabulary """
         
@@ -216,13 +253,13 @@ class fc7FrameSequenceGenerator(SequenceGenerator):
         # so each timestep of each batch is useful and we can align the images
         if align:
             num_pairs = len(self.lines)
-            remainder = num_pairs % BUFFER_SIZE
+            remainder = num_pairs % batch_num_streams
             if remainder > 0:
-                num_needed = BUFFER_SIZE - remainder
+                num_needed = batch_num_streams - remainder
                 for i in range(num_needed):
                     choice = random.randint(0, num_pairs - 1)
                     self.lines.append(self.lines[choice])
-            assert len(self.lines) % BUFFER_SIZE == 0
+            assert len(self.lines) % batch_num_streams == 0
         if shuffle:
             random.shuffle(self.lines)
         self.pad = pad

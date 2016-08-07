@@ -3,7 +3,7 @@ name: "s2vt:features_to_lstm"
 input: "frames_fc7"
 input_shape {
   dim: 1
-  dim: 32
+  dim: 20
 }
 
 input: "cont_sentence"
@@ -87,7 +87,7 @@ layer {
   }
   embed_param {
     bias_term: false
-    input_dim: 6068  # 46168 youtube_vocab+1
+    input_dim: 13853 # 1656 # 6068  # 46168 youtube_vocab+1
     num_output: 500
     weight_filler {
       type: "uniform"
@@ -157,7 +157,7 @@ layer {
     decay_mult: 0
   }
    inner_product_param {
-    num_output: 6068 # 46168 youtube_vocab + 1
+    num_output: 13853 # 1656 # 6068 # 46168 youtube_vocab + 1
     weight_filler {
       type: "uniform"
       min: -0.08

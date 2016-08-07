@@ -16,9 +16,9 @@ net: "./s2vt.prototxt"
 # below as appropriate:
 
 train_state: { stage: 'factored' stage: '2-layer' }
-test_iter: 25
+test_iter: 1160 # 25
 test_state: { stage: 'factored' stage: '2-layer' stage: 'test-on-train' }
-test_iter: 10
+test_iter: 380 # 10
 test_state: { stage: 'factored' stage: '2-layer' stage: 'test-on-val' }
 test_interval: 1000
 base_lr: 0.01
