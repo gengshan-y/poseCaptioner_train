@@ -1,6 +1,6 @@
 # poseCaptioner_train
 
-Train a sign language captioner using pose features.
+Train s2vt model using pose features. Code at `/home/gengshan/workJul/poseCaptioner_train`
 
 ## Tools
 

@@ -1,4 +1,4 @@
-name: "s2vt:features_to_lstm"
+name: "s2vt:features_to_lstm(whole batch input, no search)"
 
 input: "frames_fc7"
 input_shape {

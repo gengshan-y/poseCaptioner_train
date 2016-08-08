@@ -1,3 +1,5 @@
+import sys
+sys.path.insert(0, '/home/gengshan/workJul/poseCaptioner_train/lib')
 from dataPreproLib import *
 import json
 import numpy as np
@@ -6,8 +8,7 @@ import time
 import argparse
 
 ''' logger '''
-import sys
-sys.path.insert(0, '/home/gengshan/workJul/mergeCap')
+sys.path.insert(0, '/home/gengshan/workJul/captionPruning')
 import logInit 
 logpath = 'log/log_'
 logger = logInit.makeLogger(logpath)
